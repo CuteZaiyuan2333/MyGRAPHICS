@@ -1,0 +1,16 @@
+# Target directory
+target/
+
+# Cargo lock file (optional, but recommended to exclude for libraries)
+Cargo.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
