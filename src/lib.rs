@@ -60,6 +60,18 @@ impl Graphics {
         self.renderer.draw_triangle(p1, p2, p3);
     }
 
+    pub fn draw_char(&mut self, character: char, pos: [f32; 2], size: f32) {
+        self.renderer.draw_char(character, pos, size);
+    }
+
+    pub fn set_font(&mut self, family: &str) {
+        self.renderer.set_font(family);
+    }
+
+    pub fn set_font_path(&mut self, path: &str) {
+        self.renderer.set_font_path(path);
+    }
+
     pub fn update(&mut self, target_ms: f32) {
         if self.should_close {
             std::process::exit(0);
