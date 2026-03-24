@@ -56,7 +56,7 @@
   - `graphics.is_mouse_down(button: MouseButton) -> bool`：鼠标键是否按住。
   - `graphics.get_mouse_wheel() -> f32`：获取自上一帧以来的滚轮滚动量。
 - **注意**：
-  - 当前存在极其严重的稳定性问题，已知按下caps lock时按下按键会闪退，或按下fn按键时按下其他按键会闪退。千万不要用于严肃项目。
+  - 当前版本存在极其严重的稳定性问题，已知macOS系统下，按下caps lock时按下按键会闪退，或按下fn按键时按下其他按键会闪退。目前windows系统不存在本问题。
 ---
 
 ## 3. 进阶技巧
