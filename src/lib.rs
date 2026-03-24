@@ -50,14 +50,12 @@ pub struct Graphics {
 
 impl Graphics {
     pub fn new(title: &str, width: u32, height: u32) -> Self {
-        // Initialize logging
         env_logger::try_init().ok();
 
-        // Block on async context creation
         let context = pollster::block_on(WgpuContext::new(title, width, height));
         let mut renderer = Renderer::new(&context);
         
-        // Initial resize
+        // Use logical size for the renderer's coordinate system
         renderer.resize(&context, width, height);
 
         Self {
@@ -70,8 +68,9 @@ impl Graphics {
     }
 
     pub fn get_size(&self) -> (u32, u32) {
-        let size = self.context.window.inner_size();
-        (size.width, size.height)
+        let scale_factor = self.context.window.scale_factor();
+        let size = self.context.window.inner_size().to_logical::<f32>(scale_factor);
+        (size.width as u32, size.height as u32)
     }
 
     pub fn set_color(&mut self, color: [f32; 4]) {
@@ -98,7 +97,6 @@ impl Graphics {
         self.renderer.set_font_path(path);
     }
 
-    // Input Getters
     pub fn is_key_down(&self, key: KeyCode) -> bool {
         self.input.keys_down.contains(&key)
     }
@@ -128,18 +126,15 @@ impl Graphics {
             std::process::exit(0);
         }
 
-        // 1. Render
         self.renderer.render(&self.context);
 
-        // 2. Pump Events
         let mut resize_event = None;
         let mut close_requested = false;
-        
-        // Reset per-frame input data
         self.input.mouse_wheel_delta = 0.0;
-
         let input_state = &mut self.input;
         
+        let scale_factor = self.context.window.scale_factor();
+
         let _ = self.context.event_loop.pump_events(Some(Duration::ZERO), |event, target| {
             target.set_control_flow(ControlFlow::Poll);
             
@@ -163,7 +158,8 @@ impl Graphics {
                         }
                     },
                     WindowEvent::CursorMoved { position, .. } => {
-                        input_state.mouse_pos = (position.x as f32, position.y as f32);
+                        let logical_pos = position.to_logical::<f32>(scale_factor);
+                        input_state.mouse_pos = (logical_pos.x, logical_pos.y);
                     },
                     WindowEvent::MouseInput { state, button, .. } => {
                         if state == ElementState::Pressed {
@@ -178,7 +174,7 @@ impl Graphics {
                                 input_state.mouse_wheel_delta += y;
                             },
                             MouseScrollDelta::PixelDelta(pos) => {
-                                input_state.mouse_wheel_delta += pos.y as f32 / 32.0; // Arbitrary normalization
+                                input_state.mouse_wheel_delta += pos.y as f32 / (32.0 * scale_factor as f32);
                             }
                         }
                     },
@@ -198,18 +194,18 @@ impl Graphics {
                  self.context.config.width = size.width;
                  self.context.config.height = size.height;
                  self.context.surface.configure(&self.context.device, &self.context.config);
-                 self.renderer.resize(&self.context, size.width, size.height);
+                 
+                 // Coordinate system stays in logical units
+                 let logical_size = size.to_logical::<f32>(scale_factor);
+                 self.renderer.resize(&self.context, logical_size.width as u32, logical_size.height as u32);
              }
         }
 
-        // 3. Frame Pacing
         let elapsed = self.last_frame_time.elapsed();
         let target_duration = Duration::from_millis(target_ms as u64);
-        
         if elapsed < target_duration {
             std::thread::sleep(target_duration - elapsed);
         }
-        
         self.last_frame_time = Instant::now();
     }
 }

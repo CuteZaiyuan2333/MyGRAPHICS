@@ -359,11 +359,13 @@ impl Renderer {
 
         // 2. Render Text
         if !self.text_draws.is_empty() {
+            let scale_factor = ctx.window.scale_factor() as f32;
             let mut text_areas = Vec::new();
             let mut buffers = Vec::new();
 
             for draw in &self.text_draws {
-                let mut buffer = Buffer::new(&mut self.font_system, Metrics::new(draw.size, draw.size));
+                let physical_size = draw.size * scale_factor;
+                let mut buffer = Buffer::new(&mut self.font_system, Metrics::new(physical_size, physical_size));
                 buffer.set_size(&mut self.font_system, ctx.config.width as f32, ctx.config.height as f32);
                 buffer.set_text(
                     &mut self.font_system,
@@ -379,8 +381,8 @@ impl Renderer {
             for (i, draw) in self.text_draws.iter().enumerate() {
                 text_areas.push(glyphon::TextArea {
                     buffer: &buffers[i],
-                    left: draw.pos[0],
-                    top: draw.pos[1],
+                    left: draw.pos[0] * scale_factor,
+                    top: draw.pos[1] * scale_factor,
                     scale: 1.0,
                     bounds: glyphon::TextBounds {
                         left: 0,

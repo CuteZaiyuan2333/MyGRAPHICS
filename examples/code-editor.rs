@@ -4,7 +4,7 @@ fn main(){
 	let mut g = my_graphics::new("editor-function-example", 800, 600);
 	let mut example_position = position{
 		lt: [0.0, 0.0],
-		rb: [1000.0, 1000.0],
+		rb: [500.0, 500.0],
 		rt: [1.0, 0.0]
 	};
 	loop{

@@ -2,7 +2,7 @@ use my_graphics::Graphics;
 
 fn main(){
 	let mut graphic = my_graphics::new("mytest_1", 400, 300);
-	let (mut n, mut m) = (200.0, 200.0);
+	let (mut n, mut m) = (100.0, 100.0);
 	let (mut p, mut q) = (1, 1);
 	let (mut width, mut height);
 	
@@ -10,16 +10,16 @@ fn main(){
 		(width, height) = graphic.get_size();
 		clean(&mut graphic, [0.5, 0.5, 0.5, 1.0]);
 		graphic.set_color([1.0, 1.0, 1.0, 1.0]);
-		draw_rectangle(&mut graphic, [n, m, 200.0, 200.0]);
+		draw_rectangle(&mut graphic, [n, m, 100.0, 100.0]);
 		graphic.set_color([0.0, 0.0, 0.0, 1.0]);
-		graphic.draw_char('H', [n + 100.0, m + 100.0], 64.0);
-		if n + 200.0 >= width as f32{
+		graphic.draw_char('H', [n + 25.0, m + 25.0], 64.0);
+		if n + 100.0 >= width as f32{
 			p = -p;
 		}else if n <= 0.0{
 			p = -p;
 		}
 		
-		if m + 200.0 >= height as f32{
+		if m + 100.0 >= height as f32{
 			q = -q;
 		}else if m <= 0.0{
 			q = -q;
