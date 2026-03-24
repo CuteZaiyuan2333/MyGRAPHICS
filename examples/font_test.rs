@@ -22,9 +22,9 @@ fn main() {
 
         // Draw with different color
         graphics.set_color([1.0, 0.5, 0.0, 1.0]); // Orange
-        graphics.draw_char('!', [300.0, 100.0], 128.0);
+        graphics.draw_char('!', [300.0, 100.0], 64.0);
 
-        graphics.update(16.0);
+        graphics.update(41.66);
     }
 }
 
