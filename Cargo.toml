@@ -1,0 +1,21 @@
+[package]
+name = "my-graphics"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+winit = "0.29"
+wgpu = "0.19"
+crossbeam-channel = "0.5"
+bytemuck = { version = "1.14", features = ["derive"] }
+glyphon = "0.5"
+once_cell = "1.18"
+parking_lot = "0.12"
+my-graphics-macros = { path = "my-graphics-macros" }
+futures-intrusive = "0.5" # 辅助 wgpu 异步
+pollster = "0.3"
+log = "0.4"
+env_logger = "0.10"
+
+[workspace]
+members = ["my-graphics-macros"]
