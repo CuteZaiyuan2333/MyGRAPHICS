@@ -3,7 +3,7 @@ use crate::commands::{DrawCmd, RenderCmd, SharedInput};
 pub use winit::keyboard::KeyCode;
 
 pub struct Window {
-    pub color_stack: [f32; 4],
+    color_stack: Vec<[f32; 4]>,
     cmd_tx: Sender<RenderCmd>,
     input: SharedInput,
     pub width: f32,
@@ -15,7 +15,7 @@ pub struct Window {
 impl Window {
     pub(crate) fn new(cmd_tx: Sender<RenderCmd>, input: SharedInput, size: [f32; 2]) -> Self {
         Self {
-            color_stack: [1.0, 1.0, 1.0, 1.0],
+            color_stack: vec![[1.0, 1.0, 1.0, 1.0]],
             cmd_tx,
             input,
             width: size[0],
@@ -24,10 +24,24 @@ impl Window {
         }
     }
 
+    pub fn push_color_stack(&mut self, color: [f32; 4]) {
+        self.color_stack.push(color);
+    }
+
+    pub fn pull_color_stack(&mut self) {
+        if self.color_stack.len() > 1 {
+            self.color_stack.pop();
+        }
+    }
+
+    fn current_color(&self) -> [f32; 4] {
+        *self.color_stack.last().unwrap_or(&[1.0, 1.0, 1.0, 1.0])
+    }
+
     pub fn draw_triangle(&mut self, p1: [f32; 2], p2: [f32; 2], p3: [f32; 2]) {
         self.frame_buffer.push(DrawCmd::Triangle {
             verts: [p1, p2, p3],
-            color: self.color_stack,
+            color: self.current_color(),
         });
     }
 
@@ -35,7 +49,7 @@ impl Window {
         self.frame_buffer.push(DrawCmd::Text {
             text: text.to_string(),
             pos,
-            color: self.color_stack,
+            color: self.current_color(),
         });
     }
 
@@ -43,14 +57,14 @@ impl Window {
         self.frame_buffer.push(DrawCmd::Line {
             p1,
             p2,
-            color: self.color_stack,
+            color: self.current_color(),
         });
     }
 
     pub fn draw_bezier(&mut self, p1: [f32; 2], p2: [f32; 2], p3: [f32; 2], p4: [f32; 2]) {
         self.frame_buffer.push(DrawCmd::Bezier {
             p1, p2, p3, p4,
-            color: self.color_stack,
+            color: self.current_color(),
         });
     }
 
@@ -62,7 +76,16 @@ impl Window {
         self.input.read().mouse_pos
     }
 
+    pub fn get_size(&self) -> [f32; 2] {
+        self.input.read().window_size
+    }
+
     pub fn update(&mut self, ms: u64) {
+        // 同步窗口尺寸
+        let size = self.get_size();
+        self.width = size[0];
+        self.height = size[1];
+
         // 核心：在 update 时一次性合并提交
         if !self.frame_buffer.is_empty() {
             let frame = std::mem::replace(&mut self.frame_buffer, Vec::with_capacity(1024));

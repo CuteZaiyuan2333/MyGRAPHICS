@@ -12,12 +12,17 @@ fn main(mut win: my_graphics::window::Window) {
         }
 
         // 绘制三角形
-        win.color_stack = [1.0, 0.0, 0.0, 1.0];
+        win.push_color_stack([1.0, 0.0, 0.0, 1.0]);
         win.draw_triangle([x, 100.0], [x + 50.0, 100.0], [x + 25.0, 150.0]);
+        win.pull_color_stack();
 
         // 绘制文字
-        win.color_stack = [1.0, 1.0, 1.0, 1.0];
+        win.push_color_stack([1.0, 1.0, 1.0, 1.0]);
         win.draw_text(&format!("Current X: {:.1}", x), [x, 80.0]);
+        win.pull_color_stack();
+
+        let size = win.get_size();
+        win.draw_text(&format!("Window size: {:.0}x{:.0}", size[0], size[1]), [10.0, 30.0]);
 
         win.update(16);
     }

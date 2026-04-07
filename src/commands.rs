@@ -36,6 +36,7 @@ pub enum RenderCmd {
 #[derive(Default)]
 pub struct InputState {
     pub mouse_pos: [f32; 2],
+    pub window_size: [f32; 2],
     pub keys_down: HashSet<KeyCode>,
     pub mouse_down: [bool; 5],
 }

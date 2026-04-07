@@ -19,26 +19,35 @@ use crate::backend::Backend;
 pub use my_graphics_macros::main;
 pub use winit::keyboard::KeyCode;
 
-pub fn run<F>(user_main: F)
+pub fn run<F>(title: &str, width: f32, height: f32, user_main: F)
 where
     F: FnOnce(Window) + Send + 'static,
 {
     env_logger::init();
     let event_loop = EventLoop::new().unwrap();
     let window_raw = Arc::new(WindowBuilder::new()
-        .with_title("MyGRAPHICS")
-        .with_inner_size(winit::dpi::LogicalSize::new(800.0, 600.0))
+        .with_title(title)
+        .with_inner_size(winit::dpi::LogicalSize::new(width as f64, height as f64))
         .build(&event_loop)
         .unwrap());
 
     let (cmd_tx, cmd_rx) = unbounded::<RenderCmd>();
-    let input_state = Arc::new(RwLock::new(InputState::default()));
+    let physical_size = window_raw.inner_size();
+    let sf = window_raw.scale_factor();
+    let logical_size = [
+        (physical_size.width as f64 / sf) as f32,
+        (physical_size.height as f64 / sf) as f32,
+    ];
+
+    let input_state = Arc::new(RwLock::new(InputState {
+        window_size: logical_size,
+        ..Default::default()
+    }));
     
-    let logical_size = window_raw.inner_size();
     let win_proxy = Window::new(
         cmd_tx, 
         input_state.clone(), 
-        [logical_size.width as f32, logical_size.height as f32]
+        logical_size
     );
 
     std::thread::spawn(move || {
@@ -53,10 +62,20 @@ where
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::CloseRequested => elwt.exit(),
                 WindowEvent::Resized(size) => {
-                    backend.resize(size, window_raw.scale_factor() as f32);
+                    let sf = window_raw.scale_factor();
+                    input_state.write().window_size = [
+                        (size.width as f64 / sf) as f32, 
+                        (size.height as f64 / sf) as f32
+                    ];
+                    backend.resize(size, sf as f32);
                 }
                 WindowEvent::ScaleFactorChanged { scale_factor, .. } => {
-                    backend.resize(window_raw.inner_size(), scale_factor as f32);
+                    let size = window_raw.inner_size();
+                    input_state.write().window_size = [
+                        (size.width as f64 / scale_factor) as f32, 
+                        (size.height as f64 / scale_factor) as f32
+                    ];
+                    backend.resize(size, scale_factor as f32);
                 }
                 WindowEvent::CursorMoved { position, .. } => {
                     let sf = window_raw.scale_factor();
