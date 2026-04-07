@@ -16,8 +16,11 @@ MyGRAPHICS 自动处理 DPI 缩放。你传入的所有坐标（如 `[400.0, 300
 
 ## 绘图指令 (Drawing Commands)
 
-### `win.color_stack: [f32; 4]`
-颜色状态栈。后续指令将自动应用此颜色（RGBA，范围 0.0-1.0）。
+### `win.push_color_stack(color: [f32; 4])`
+将颜色推入颜色栈，输入color为颜色，后续指令将自动应用此颜色（RGBA，范围 0.0-1.0）。
+
+### `win.pull_color_stack()`
+把颜色栈里的颜色推出。
 
 ### `win.draw_triangle(p1, p2, p3)`
 绘制实心彩色三角形。
@@ -43,6 +46,14 @@ MyGRAPHICS 自动处理 DPI 缩放。你传入的所有坐标（如 `[400.0, 300
 获取鼠标在窗口内的**逻辑坐标**。
 
 ---
+
+## 获取窗口尺寸、以及设置窗口标题和尺寸
+
+### `win.get_size() -> [f32; 2]`
+获取窗口win的逻辑尺寸。
+
+### `#[my_graphics::main(title = "my program", width = 800.0, height = 600.0)]`
+设置窗口的标题和尺寸
 
 ## 示例程序
 
