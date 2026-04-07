@@ -1,10 +1,8 @@
 use my_graphics;
 
 #[my_graphics::main(title = "my program", width = 800.0, height = 600.0)]
-
 fn main(mut win:my_graphics::window::Window){
     win.push_color_stack([1.0, 1.0, 1.0, 1.0]);
-    //let mut size = win.get_size();
     loop{
         clean(&mut win, [1.0, 1.0, 1.0, 1.0]);
         win.update(16);
